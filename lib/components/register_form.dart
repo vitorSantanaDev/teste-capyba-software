@@ -1,12 +1,10 @@
-//packege
-import 'dart:io';
+//packeges
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:teste_capyba/pages/login_page.dart';
+import 'package:teste_capyba/services/sign_up_service.dart';
 
 //components
-import 'package:teste_capyba/components/header_page.dart';
-import 'package:teste_capyba/components/input.dart';
-// import 'package:teste_capyba/components/modal_upload_photo.dart';
 
 class FormRegisterApp extends StatefulWidget {
   const FormRegisterApp({Key? key}) : super(key: key);
@@ -16,7 +14,7 @@ class FormRegisterApp extends StatefulWidget {
 }
 
 class _FormRegisterAppState extends State<FormRegisterApp> {
-  final _form = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final _nameValue = TextEditingController();
   final _emailValue = TextEditingController();
   final _passwordValue = TextEditingController();
@@ -52,160 +50,149 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
     }
   }
 
-  testClick() {
-    print('${_nameValue.text} ${_emailValue.text} ${_passwordValue.text} ${_confirmPasswordValue.text} Image: ${image.toString()}');
+  signUp() {
+    if(_formKey.currentState!.validate()) {
+      SignUpService().signUp(_emailValue.text, _passwordValue.text);
+      _nameValue.text = "";
+      _emailValue.text = "";
+      _passwordValue.text = "";
+      _confirmPasswordValue.text = "";
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            HeaderPage(text: 'Cadastro'),
-            Form(
-              key: _form,
-              child: Column(
-                children: [
-                  (image != null)
-                      ? SizedBox(
-                          width: 200,
-                          height: 200,
-                          child: Container(
-                            child: ClipRRect(
-                              child: Image.file(
-                                File(image!.path),
-                                fit: BoxFit.cover,
-                              ),
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(100)),
-                            ),
-                          ),
-                        )
-                      : Container(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                width: 200,
-                                height: 200,
-                                child: ClipRRect(
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(100)),
-                                    child: Image.network(
-                                        'https://media.istockphoto.com/vectors/profile-anonymous-face-icon-gray-silhouette-person-male-default-vector-id903053114?k=20&m=903053114&s=170667a&w=0&h=PfLuZ_Q-Yh3Qk3cKq7GLcCQFCsqRL1100YjYz5VF2t4=')),
-                              ),
-                              const Text(
-                                'Nenhuma foto adicionada...',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.redAccent),
-                              )
-                            ],
-                          ),
-                        ),
-                  Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.only(top: 24),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          margin: const EdgeInsets.all(12),
-                          child: ElevatedButton(
-                            onPressed: uploadPhoto,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.camera_alt),
-                                Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: Text('Carregar foto',
-                                      style: TextStyle(fontSize: 20)),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.all(12),
-                          child: ElevatedButton(
-                            onPressed: selectedPhotoFromGallery,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.photo),
-                                Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: Text('Escolher foto',
-                                      style: TextStyle(fontSize: 20)),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Cadastro'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 100),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [ 
+                const Text('Faça seu cadastro',
+                  style: TextStyle(
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -1.5
                   ),
-                  TextFormFieldComponent(
-                      keyBoardType: TextInputType.name,
-                      prefixIcon: const Icon(Icons.person),
-                      autoFocus: true,
-                      obscureText: false,
-                      controller: _nameValue,
-                      labeltext: 'Nome'),
-                  TextFormFieldComponent(
-                      keyBoardType: TextInputType.emailAddress,
-                      prefixIcon: const Icon(Icons.email),
-                      autoFocus: true,
-                      obscureText: false,
-                      controller: _emailValue,
-                      labeltext: 'E-mail'),
-                  TextFormFieldComponent(
-                      keyBoardType: TextInputType.visiblePassword,
-                      prefixIcon: const Icon(Icons.password),
-                      autoFocus: true,
-                      obscureText: true,
-                      controller: _passwordValue,
-                      labeltext: 'Senha'),
-                  TextFormFieldComponent(
-                      keyBoardType: TextInputType.visiblePassword,
-                      prefixIcon: const Icon(Icons.password),
-                      autoFocus: true,
-                      obscureText: true,
-                      controller: _confirmPasswordValue,
-                      labeltext: 'Confirme sua senha'),
-                  Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.only(top: 24),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextFormField(
+                    keyboardType: TextInputType.text,
+                    controller: _nameValue,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Nome',
+                      prefixIcon: Icon(Icons.person)
+                    ),
+                    validator: (value) {
+                      if(value!.isEmpty) {
+                        return 'Informe o email corretamente.';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    controller: _emailValue,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'E-mail',
+                      prefixIcon: Icon(Icons.email)
+                    ),
+                    validator: (value) {
+                      if(value!.isEmpty) {
+                        return 'Informe o email corretamente.';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextFormField(
+                    keyboardType: TextInputType.visiblePassword,
+                    obscureText: true,
+                    controller: _passwordValue,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Senha',
+                      prefixIcon: Icon(Icons.password)
+                    ),
+                    validator: (value) {
+                      if(value!.isEmpty) {
+                        return 'Informe sua senha!';
+                      } else if(value.length < 6) {
+                        return 'Sua senha deve conter no mínimo 6 caracteres.';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: TextFormField(
+                    keyboardType: TextInputType.visiblePassword,
+                    obscureText: true,
+                    controller: _confirmPasswordValue,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Confirme sua senha',
+                      prefixIcon: Icon(Icons.password)
+                    ),
+                    validator: (value) {
+                      if(value!.isEmpty) {
+                        return 'Informe sua senha!';
+                      } else if(value.length < 6) {
+                        return 'Sua senha deve conter no mínimo 6 caracteres.';
+                      } else if(value != _passwordValue.text) {
+                        return 'As senhas não correspondem, tente novamente.';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(80),
                     child: ElevatedButton(
                       onPressed: () {
-                        print('${_nameValue} ${_emailValue} ${_passwordValue} ${_confirmPasswordValue} Image: ${image}');
+                        signUp();
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.login),
+                          Icon(Icons.app_registration_rounded),
                           Padding(
-                            padding: EdgeInsets.all(12),
-                            child: Text('Cadastrar',
-                                style: TextStyle(fontSize: 20)),
+                            padding: EdgeInsets.all(16),
+                            child: Text('Cadastrar', 
+                              style: TextStyle(
+                                fontSize: 20
+                              ),
+                            ),
                           )
                         ],
                       ),
                     ),
                   ),
-                ],
-              ),
-            )
-          ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
+    // return Padding(
   }
 }
