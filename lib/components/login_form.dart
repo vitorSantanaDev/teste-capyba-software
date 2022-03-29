@@ -1,10 +1,10 @@
 //packege
 import 'package:flutter/material.dart';
-import 'package:teste_capyba/components/header_page.dart';
-import 'package:teste_capyba/components/input.dart';
-import 'package:teste_capyba/pages/register_page.dart';
 
 //components
+import 'package:teste_capyba/components/register_form.dart';
+import 'package:teste_capyba/pages/home_page.dart';
+import 'package:teste_capyba/services/login_service.dart';
 
 class FormLoginApp extends StatefulWidget {
   const FormLoginApp({Key? key}) : super(key: key);
@@ -14,98 +14,137 @@ class FormLoginApp extends StatefulWidget {
 }
 
 class _FormLoginAppState extends State<FormLoginApp> {
-  final _form = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
   final _emailValue = TextEditingController();
   final _passwordValue = TextEditingController();
 
+  late bool emailValidate = !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                        .hasMatch(_emailValue.text);
+
+  final snackBar = const SnackBar(
+      content: Text('Email ou senha são inválidos', 
+            textAlign: TextAlign.center
+            ,),
+            backgroundColor: Colors.redAccent,
+          );
+
+  signIn() async {
+    FocusScopeNode currentFocus = FocusScope.of(context);
+    if(_formKey.currentState!.validate()) {
+      final loginSucsses = await SignInService().signIn(_emailValue.text, _passwordValue.text);
+      await SignInService().signIn(_emailValue.text, _passwordValue.text);
+      _emailValue.text = "";
+      _passwordValue.text = "";
+      if(!currentFocus.hasPrimaryFocus) {
+        currentFocus.unfocus();
+      }
+      if(loginSucsses) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()));
+      } else {
+        _passwordValue.clear();
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            HeaderPage(text: 'Login'),
-            Form(
-              key: _form,
-              child: Column(
-                children: [
-                  TextFormFieldComponent(
-                      keyBoardType: TextInputType.emailAddress,
-                      prefixIcon: const Icon(Icons.email),
-                      autoFocus: true,
-                      obscureText: false,
-                      controller: _emailValue,
-                      labeltext: 'E-mail'),
-                  TextFormFieldComponent(
-                      autoFocus: true,
-                      keyBoardType: TextInputType.visiblePassword,
-                      prefixIcon: const Icon(Icons.password),
-                      obscureText: true,
-                      controller: _passwordValue,
-                      labeltext: 'Senha'),
-                  Container(
-                    alignment: Alignment.center,
-                    margin: const EdgeInsets.only(top: 24),
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 100),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [ 
+                const Text('Seja bem vindo',
+                  style: TextStyle(
+                    fontSize: 35,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: -1.5
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    controller: _emailValue,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'E-mail',
+                      prefixIcon: Icon(Icons.email)
+                    ),
+                    validator: (value) {
+                      if(value!.isEmpty) {
+                        return 'Informe o email corretamente.';
+                      } else if(emailValidate) {
+                        return 'Por favor digite um e-mail válido.';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: TextFormField(
+                    keyboardType: TextInputType.visiblePassword,
+                    obscureText: true,
+                    controller: _passwordValue,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Senha',
+                      prefixIcon: Icon(Icons.password)
+                    ),
+                    validator: (value) {
+                      if(value!.isEmpty) {
+                        return 'Informe sua senha!';
+                      } else if(value.length < 6) {
+                        return 'Sua senha deve conter no mínimo 6 caracteres.';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(80),
                     child: ElevatedButton(
                       onPressed: () {
-                        print('${_emailValue.text}, ${_passwordValue.text}');
+                        signIn();
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: const [
-                          Icon(Icons.login),
+                          Icon(Icons.login_rounded),
                           Padding(
-                            padding: EdgeInsets.all(12),
-                            child:
-                                Text('Login', style: TextStyle(fontSize: 20)),
+                            padding: EdgeInsets.all(16),
+                            child: Text('Fazer login', 
+                              style: TextStyle(
+                                fontSize: 20
+                              ),
+                            ),
                           )
                         ],
                       ),
                     ),
                   ),
-                  Container(
-                    margin: const EdgeInsets.all(24),
-                    alignment: Alignment.center,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text(
-                          'Não possui conta?',
-                          style: TextStyle(
-                            color: Colors.blueAccent,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.all(16),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: ((context) => const RegisterPage())));
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: const [
-                                Icon(Icons.app_registration_rounded),
-                                Padding(
-                                  padding: EdgeInsets.all(12),
-                                  child: Text('Cadastre-se',
-                                      style: TextStyle(fontSize: 20)),
-                                )
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            )
-          ],
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Text('Ainda não tem conta? :('),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const FormRegisterApp()));
+                  }, 
+                  child: const Text('Cadastre-se agora! ;)')
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );
