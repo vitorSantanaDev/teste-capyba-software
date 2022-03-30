@@ -18,35 +18,38 @@ class _FormLoginAppState extends State<FormLoginApp> {
   final _emailValue = TextEditingController();
   final _passwordValue = TextEditingController();
 
-  late bool emailValidate = !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                        .hasMatch(_emailValue.text);
+  late bool emailValidate = !RegExp(
+          r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+      .hasMatch(_emailValue.text);
 
   final snackBar = const SnackBar(
-      content: Text('Email ou senha são inválidos', 
-            textAlign: TextAlign.center
-            ,),
-            backgroundColor: Colors.redAccent,
-          );
+    content: Text(
+      'Email ou senha são inválidos',
+      textAlign: TextAlign.center,
+    ),
+    backgroundColor: Colors.redAccent,
+  );
 
   signIn() async {
     FocusScopeNode currentFocus = FocusScope.of(context);
-    if(_formKey.currentState!.validate()) {
-      final loginSucsses = await SignInService().signIn(_emailValue.text, _passwordValue.text);
+    if (_formKey.currentState!.validate()) {
+      final loginSucsses =
+          await SignInService().signIn(_emailValue.text, _passwordValue.text);
       await SignInService().signIn(_emailValue.text, _passwordValue.text);
       _emailValue.text = "";
       _passwordValue.text = "";
-      if(!currentFocus.hasPrimaryFocus) {
+      if (!currentFocus.hasPrimaryFocus) {
         currentFocus.unfocus();
       }
-      if(loginSucsses) {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePage()));
+      if (loginSucsses) {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => const HomePage()));
       } else {
         _passwordValue.clear();
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -58,13 +61,13 @@ class _FormLoginAppState extends State<FormLoginApp> {
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [ 
-                const Text('Seja bem vindo',
+              children: [
+                const Text(
+                  'Seja bem vindo',
                   style: TextStyle(
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -1.5
-                  ),
+                      fontSize: 35,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -1.5),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(24),
@@ -72,14 +75,13 @@ class _FormLoginAppState extends State<FormLoginApp> {
                     keyboardType: TextInputType.emailAddress,
                     controller: _emailValue,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'E-mail',
-                      prefixIcon: Icon(Icons.email)
-                    ),
+                        border: OutlineInputBorder(),
+                        labelText: 'E-mail',
+                        prefixIcon: Icon(Icons.email)),
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Informe o email corretamente.';
-                      } else if(emailValidate) {
+                      } else if (emailValidate) {
                         return 'Por favor digite um e-mail válido.';
                       }
                       return null;
@@ -93,14 +95,13 @@ class _FormLoginAppState extends State<FormLoginApp> {
                     obscureText: true,
                     controller: _passwordValue,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Senha',
-                      prefixIcon: Icon(Icons.password)
-                    ),
+                        border: OutlineInputBorder(),
+                        labelText: 'Senha',
+                        prefixIcon: Icon(Icons.password)),
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Informe sua senha!';
-                      } else if(value.length < 6) {
+                      } else if (value.length < 6) {
                         return 'Sua senha deve conter no mínimo 6 caracteres.';
                       }
                       return null;
@@ -121,10 +122,9 @@ class _FormLoginAppState extends State<FormLoginApp> {
                           Icon(Icons.login_rounded),
                           Padding(
                             padding: EdgeInsets.all(16),
-                            child: Text('Fazer login', 
-                              style: TextStyle(
-                                fontSize: 20
-                              ),
+                            child: Text(
+                              'Fazer login',
+                              style: TextStyle(fontSize: 20),
                             ),
                           )
                         ],
@@ -137,11 +137,13 @@ class _FormLoginAppState extends State<FormLoginApp> {
                   child: Text('Ainda não tem conta? :('),
                 ),
                 TextButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const FormRegisterApp()));
-                  }, 
-                  child: const Text('Cadastre-se agora! ;)')
-                )
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const FormRegisterApp()));
+                    },
+                    child: const Text('Cadastre-se agora! ;)'))
               ],
             ),
           ),
