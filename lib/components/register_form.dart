@@ -1,10 +1,9 @@
 //packeges
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:teste_capyba/pages/login_page.dart';
 import 'package:teste_capyba/services/sign_up_service.dart';
-
-//components
 
 class FormRegisterApp extends StatefulWidget {
   const FormRegisterApp({Key? key}) : super(key: key);
@@ -22,6 +21,16 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
 
   XFile? image;
 
+  snackBar(String message) {
+    return SnackBar(
+      content: Text(
+        message,
+        textAlign: TextAlign.center,
+      ),
+      backgroundColor: Colors.redAccent,
+    );
+  }
+
   uploadPhoto() async {
     final ImagePicker picker = ImagePicker();
     try {
@@ -32,7 +41,7 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
         });
       }
     } catch (error) {
-      print('Nenhuma foto selecionada.');
+      snackBar('Não foi possível capturar a foto.');
     }
   }
 
@@ -46,18 +55,21 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
         });
       }
     } catch (error) {
-      print('Nenhuma foto selecionada.');
+      ScaffoldMessenger.of(context).showSnackBar(snackBar('Nenhuma foto selecionada'));
     }
   }
 
   signUp() {
-    if(_formKey.currentState!.validate()) {
+    if (image == null) {
+      ScaffoldMessenger.of(context).showSnackBar(snackBar('Por favor insira uma foto'));
+    } else if (_formKey.currentState!.validate() && image != null) {
       SignUpService().signUp(_emailValue.text, _passwordValue.text);
       _nameValue.text = "";
       _emailValue.text = "";
       _passwordValue.text = "";
       _confirmPasswordValue.text = "";
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginPage()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const LoginPage()));
     }
   }
 
@@ -65,7 +77,12 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cadastro'),
+        title: const Text(
+          'Cadastro',
+          style: TextStyle(color: Colors.black87),
+        ),
+        backgroundColor: const Color.fromRGBO(0, 233, 99, 1),
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -74,26 +91,90 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
             key: _formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [ 
-                const Text('Faça seu cadastro',
+              children: [
+                const Text(
+                  'Faça seu cadastro',
                   style: TextStyle(
-                    fontSize: 35,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: -1.5
-                  ),
+                      fontSize: 35,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: -1.5,
+                      color: Colors.white),
                 ),
+                Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: SizedBox(
+                            width: 150,
+                            height: 150,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              child: ClipRRect(
+                                child: image != null
+                                    ? Image.file(File(image!.path),
+                                        fit: BoxFit.fill)
+                                    : Image.asset(
+                                        'images/icon_person.png',
+                                        fit: BoxFit.contain,
+                                      ),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(150)),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: ElevatedButton(
+                                onPressed: uploadPhoto,
+                                child: Row(
+                                  children: const [
+                                    Text(
+                                      'Tirar foto',
+                                      style: TextStyle(color: Colors.black87),
+                                    ),
+                                    Icon(Icons.camera, color: Colors.black87)
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: TextButton(
+                                onPressed: selectedPhotoFromGallery,
+                                child: Row(
+                                  children: const [
+                                    Text(
+                                      'Escolha uma foto',
+                                      style: TextStyle(
+                                          color: Color.fromRGBO(0, 233, 99, 1)),
+                                    ),
+                                    Icon(Icons.file_copy_sharp,
+                                        color: Color.fromRGBO(0, 233, 99, 1))
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    )),
                 Padding(
                   padding: const EdgeInsets.all(16),
                   child: TextFormField(
                     keyboardType: TextInputType.text,
                     controller: _nameValue,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Nome',
-                      prefixIcon: Icon(Icons.person)
-                    ),
+                        border: OutlineInputBorder(),
+                        labelText: 'Nome',
+                        prefixIcon: Icon(Icons.person)),
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Informe o email corretamente.';
                       }
                       return null;
@@ -106,12 +187,11 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
                     keyboardType: TextInputType.emailAddress,
                     controller: _emailValue,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'E-mail',
-                      prefixIcon: Icon(Icons.email)
-                    ),
+                        border: OutlineInputBorder(),
+                        labelText: 'E-mail',
+                        prefixIcon: Icon(Icons.email)),
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Informe o email corretamente.';
                       }
                       return null;
@@ -125,14 +205,13 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
                     obscureText: true,
                     controller: _passwordValue,
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Senha',
-                      prefixIcon: Icon(Icons.password)
-                    ),
+                        border: OutlineInputBorder(),
+                        labelText: 'Senha',
+                        prefixIcon: Icon(Icons.password)),
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Informe sua senha!';
-                      } else if(value.length < 6) {
+                      } else if (value.length < 6) {
                         return 'Sua senha deve conter no mínimo 6 caracteres.';
                       }
                       return null;
@@ -148,14 +227,14 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       labelText: 'Confirme sua senha',
-                      prefixIcon: Icon(Icons.password)
+                      prefixIcon: Icon(Icons.password),
                     ),
                     validator: (value) {
-                      if(value!.isEmpty) {
+                      if (value!.isEmpty) {
                         return 'Informe sua senha!';
-                      } else if(value.length < 6) {
+                      } else if (value.length < 6) {
                         return 'Sua senha deve conter no mínimo 6 caracteres.';
-                      } else if(value != _passwordValue.text) {
+                      } else if (value != _passwordValue.text) {
                         return 'As senhas não correspondem, tente novamente.';
                       }
                       return null;
@@ -176,10 +255,9 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
                           Icon(Icons.app_registration_rounded),
                           Padding(
                             padding: EdgeInsets.all(16),
-                            child: Text('Cadastrar', 
-                              style: TextStyle(
-                                fontSize: 20
-                              ),
+                            child: Text(
+                              'Cadastrar',
+                              style: TextStyle(fontSize: 20),
                             ),
                           )
                         ],
