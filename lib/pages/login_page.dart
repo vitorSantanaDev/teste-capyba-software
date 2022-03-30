@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:teste_capyba/components/login_form.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({Key? key}) : super(key: key);
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -16,7 +16,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login')
+        title: const Text('Login', style: TextStyle(color: Colors.black87),),
+        backgroundColor: const Color.fromRGBO(0, 233, 99, 1),
+        centerTitle: true,
       ),
       body: const FormLoginApp(),
     );
