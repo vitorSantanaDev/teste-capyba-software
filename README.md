@@ -17,8 +17,6 @@
 
 [Sobre a aplicação](#teste-capyba-software)
 
-[Funcionalidades](#funcionalidades)
-
 [Tecnologias e Ferramentas](#tecnologias-e-ferramentas)
 
 [Instalação e uso](#instalação-e-uso)
