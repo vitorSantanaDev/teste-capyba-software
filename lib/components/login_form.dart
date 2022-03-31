@@ -1,10 +1,12 @@
-//packege
+//packeges
 import 'package:flutter/material.dart';
 
 //components
 import 'package:teste_capyba/components/register_form.dart';
-import 'package:teste_capyba/pages/home_page.dart';
 import 'package:teste_capyba/services/login_service.dart';
+
+//pages
+import 'package:teste_capyba/pages/home_page.dart';
 
 class FormLoginApp extends StatefulWidget {
   const FormLoginApp({Key? key}) : super(key: key);
@@ -36,8 +38,7 @@ class _FormLoginAppState extends State<FormLoginApp> {
       final loginSucsses =
           await SignInService().signIn(_emailValue.text, _passwordValue.text);
       await SignInService().signIn(_emailValue.text, _passwordValue.text);
-      _emailValue.text = "";
-      _passwordValue.text = "";
+
       if (!currentFocus.hasPrimaryFocus) {
         currentFocus.unfocus();
       }
