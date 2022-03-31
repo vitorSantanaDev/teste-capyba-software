@@ -2,8 +2,15 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:teste_capyba/pages/login_page.dart';
+import 'package:provider/provider.dart';
+import 'package:teste_capyba/models/user.dart';
+import 'package:teste_capyba/provider/user_provider.dart';
+
+//services
 import 'package:teste_capyba/services/sign_up_service.dart';
+
+//pages
+import 'package:teste_capyba/pages/login_page.dart';
 
 class FormRegisterApp extends StatefulWidget {
   const FormRegisterApp({Key? key}) : super(key: key);
@@ -18,7 +25,6 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
   final _emailValue = TextEditingController();
   final _passwordValue = TextEditingController();
   final _confirmPasswordValue = TextEditingController();
-
   XFile? image;
 
   snackBar(String message) {
@@ -55,26 +61,39 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
         });
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(snackBar('Nenhuma foto selecionada'));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(snackBar('Nenhuma foto selecionada'));
     }
   }
 
-  signUp() {
+  signUp() async {
     if (image == null) {
-      ScaffoldMessenger.of(context).showSnackBar(snackBar('Por favor insira uma foto'));
-    } else if (_formKey.currentState!.validate() && image != null) {
-      SignUpService().signUp(_emailValue.text, _passwordValue.text);
-      _nameValue.text = "";
-      _emailValue.text = "";
-      _passwordValue.text = "";
-      _confirmPasswordValue.text = "";
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const LoginPage()));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(snackBar('Por favor insira uma foto'));
+    } else if (_formKey.currentState!.validate()) {
+      var response = await SignUpService()
+          .signUp(_nameValue.text, _emailValue.text, _passwordValue.text);
+
+      if (response) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const LoginPage()));
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(snackBar('Este e-mail já existe.'));
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    late User user = User(
+        name: _nameValue.text,
+        email: _emailValue.text,
+        password: _passwordValue.text,
+        photo: image);
+    UserProvider userProvider = Provider.of(context);
+    userProvider.setUser(user);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -150,11 +169,11 @@ class _FormRegisterAppState extends State<FormRegisterApp> {
                                 child: Row(
                                   children: const [
                                     Text(
-                                      'Escolha uma foto',
+                                      'Escolher foto',
                                       style: TextStyle(
                                           color: Color.fromRGBO(0, 233, 99, 1)),
                                     ),
-                                    Icon(Icons.file_copy_sharp,
+                                    Icon(Icons.image,
                                         color: Color.fromRGBO(0, 233, 99, 1))
                                   ],
                                 ),
